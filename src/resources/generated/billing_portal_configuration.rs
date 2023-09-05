@@ -3,6 +3,7 @@
 // ======================================
 
 use serde::{Deserialize, Serialize};
+use crate::{Client, Response};
 
 use crate::ids::BillingPortalConfigurationId;
 use crate::params::{Expandable, Metadata, Object, Timestamp};
@@ -55,6 +56,17 @@ pub struct BillingPortalConfiguration {
     pub updated: Timestamp,
 }
 
+impl BillingPortalConfiguration {
+    /// Creates a session of the customer portal.
+    /// https://stripe.com/docs/api/customer_portal/configurations/create
+    pub fn create(
+        client: &Client,
+        params: CreateBillingPortalConfiguration,
+    ) -> Response<BillingPortalConfiguration> {
+        client.post_form("/billing_portal/configurations", &params)
+    }
+}
+
 impl Object for BillingPortalConfiguration {
     type Id = BillingPortalConfigurationId;
     fn id(&self) -> Self::Id {
@@ -63,6 +75,31 @@ impl Object for BillingPortalConfiguration {
     fn object(&self) -> &'static str {
         "billing_portal.configuration"
     }
+}
+
+/// The parameters for `BillingPortalConfiguration::create`.
+/// https://stripe.com/docs/api/customer_portal/configurations/create
+#[derive(Default, Clone, Debug, Serialize)]
+pub struct CreateBillingPortalConfiguration {
+    /// The business information shown to customers in the portal.
+    pub business_profile: PortalBusinessProfile,
+
+    /// The default URL to redirect customers to when they click on the portal's link to return to your website.
+    ///
+    /// This can be [overriden](https://stripe.com/docs/api/customer_portal/sessions/create#create_portal_session-return_url) when creating the session.
+    pub default_return_url: Option<String>,
+
+    /// Information about the features available in the portal.
+    pub features: PortalFeatures,
+
+    /// The hosted login page for this configuration. Learn more about the portal login page in our
+    /// [integration docs](https://stripe.com/docs/customer-management#share).
+    pub login_page: PortalLoginPage,
+
+    /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
+    ///
+    /// This can be useful for storing additional information about the object in a structured format.
+    pub metadata: Metadata,
 }
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
